@@ -6,7 +6,7 @@ class Resource:
 
     def __init__( self ):
         #Resource Constructor
-        #Note the keys are stored in a config.py file which is in .gitignore
+        #Note the keys are stored in a config.py file which is in .gitignore this ensures that you don't do something silly like commiting keys!
         self.region = config.region
         self.key_id = config.key_id
         self.secret_key = config.secret_key
@@ -32,7 +32,3 @@ class Resource:
                              aws_secret_access_key = self.secret_key,
                              region_name = self.region )
         return cw
-
-    def MyNew ( self ):
-        #empty
-        pass

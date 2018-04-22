@@ -8,11 +8,14 @@ class CWController:
 
     def __init__(self):
 
-        # CWController Constructor
+        # CWController Constructor. The constructor instantiates the object using the definitions below. The constructor does the initializing of variables, etc
         pass
 
     def get_metric_statistics(self, cw, instance_id):
+        #metrics are stored in a simple list, and will be iterated over in the function body
         metrics=['CPUUtilization', 'DiskReadBytes', 'NetworkIn', 'NetworkOut', 'ReadThroughput', 'WriteThroughput', 'FreeStorageSpace', 'CPUCreditBalance']
+        #while loop that runs through the various metrics above and prints them to the console.
+        #keyword arguments are a mix of immutable hardcoded parameters, the metrics lists which is iterated over, and various datatypes like datetime and so on.
         i = 0
         while i < 8:
             if i < 8:
@@ -21,12 +24,14 @@ class CWController:
                     Period=600,
                     StartTime=datetime.datetime.utcnow() - datetime.timedelta(seconds=600),
                     EndTime=datetime.datetime.utcnow(),
+                    #the item at stage i in the list is returned on every iteration of the list. 
                     MetricName=metrics[i],
                     Namespace="AWS/EC2",
                     Statistics=["Average"],
                     Dimensions=[{"Name":"InstanceId", "Value":instance_id}]
                     )
                     print(a)
+                    #increment the counter
                     i += 1  
 
     def set_alarm( self, cw, instance_id, metric, value, unit_type ):
@@ -42,12 +47,14 @@ class CWController:
             EvaluationPeriods=1,
             MetricName=metric,
             Namespace="AWS/EC2",
-            Period=300, #INSUFFICIENT_DATA error if lower than the period of the metric
+            Period=600, #INSUFFICIENT_DATA error if lower than the period of the metric
             Statistic="Average",
+            #value is passed in when the method in invoked
             Threshold=value,
             #turn this to true to enable SNS response
             ActionsEnabled=True,
-            #add ARN for SNS email alert 
+            #add ARN for SNS email alert
+            #I set up the topic ARN by hand in the AWS console. So it is already configured in my AWS dashboard, it just needs to be called here... 
             AlarmActions=['arn:aws:sns:eu-west-1:243015836428:CPU-alarm'],
             AlarmDescription="Alarm for CPU utilization is below 40%!",
             Dimensions=[
@@ -59,6 +66,15 @@ class CWController:
             Unit=unit_type
             )
 
+#function to subscribe to a topic. Tsakes the Cloudwatch resource, and an email_address input as paramaters, as well as the various keyword args in the subscribe method.
+    def subscribe_sns_topic(cw, self, email_address):
+        client = boto3.client('sns')
+        sub = client.subscribe(
+                TopicArn="arn:aws:sns:eu-west-1:243015836428:CPU-alarm",
+                Protocol="email",
+                Endpoint=email_address
+            )
+
 # function to send an email to a topic...
     def send_sns_email(cw, self):
         client = boto3.client('sns')
@@ -68,9 +84,6 @@ class CWController:
             )
         print("Response: {}".format(response))
 
-
-
-#http://boto3.readthedocs.io/en/latest/guide/cw-example-creating-alarms.html
     def delete_alarm(self, cw, name):
 
         # Deletes an alarm with the given 'name', using the CloudWatch client "cw"

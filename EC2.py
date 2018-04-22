@@ -8,18 +8,19 @@ class EC2Controller:
         pass
 
     def list_instances( self, ec2 ):
-        # List all EC2 instances for the EC2 Resource 'ec2'
+        # List all instances for the EC2 Resource 'ec2'
         count = 0
         for instance in ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}]) :
             print("Instance", count, "-", "AMI id:",  instance.image_id, "Instance id:", instance.id, " Launched:", instance.launch_time)
-            count += 1  
+            count += 1
+        #count == 0 basically says: "if there are no hits on the filter search"   
         if count == 0:
             print( "No EC2 instances detected!" )
 
     def list_instance( self , ec2, instance_id):
         try:     
             count = 0
-            # Return an instance with id of instance_id
+            # Return an instance with id of instance_id using a filter on the kwarg InstanceIds
             for instance in ec2.instances.filter(InstanceIds=[instance_id]):
                 print("Instance", count, "-", "AMI id:",  instance.image_id, "Instance id:", instance.id, " Launched:", instance.launch_time)
                 count += 1
@@ -59,8 +60,14 @@ class EC2Controller:
             print ("No instance found for that input, please try again.")    
 
     def stop_instances( self , ec2 ):
+        #stop all instances
         for instance in ec2.instances.all():
             instance.stop()
+
+    #when it absolutely has to be nuclear
+    def terminate_instances( self , ec2 ):
+        for instance in ec2.instances.all():
+            instance.terminate()
 
     def add_tags( self, ec2, instance_id, tags ):
         # Add the contents of the list of dictionaries 'tags' as tags
@@ -99,6 +106,10 @@ class EC2Controller:
                     print( "No running EC2 instances detected!" )
         except:
             print ("No instance found for that input, please try again.")    
+
+    def autoscale_id(self, ec2):
+        #set up default autoscale config
+        autoscale = ec2.autoscale.connect_to_region('eu-west-1')
 
 
                          

@@ -1,6 +1,6 @@
-## AWS CONF a boto3 program for controling AWS objects by Aidan Reilly
+## AWS CONF - a boto3 program for controling AWS objects by Aidan Reilly
 
-#boto/AWS components
+#Import all boto/AWS components 
 import boto3
 import Resources
 import EC2
@@ -13,12 +13,13 @@ from colorama import init
 from termcolor import cprint 
 from pyfiglet import figlet_format
 
-#silly thing to put a nerdy ascii banner in
+#Silly thing to put a nerdy ascii banner in
 print (" ")
 print (" ")
 init(strip=not sys.stdout.isatty()) # strip colors if stdout is redirected
 cprint(figlet_format('AWS CONF', font='doom'),
        'red', attrs=['bold'])
+#os.system('pause') is a neat way of getting the user to "unpause" the application
 os.system('pause')
 
 #instantiate all the AWS objects
@@ -36,8 +37,8 @@ tags = [
     { "Key": "key2", "Value": "value2"  }
     ]
 
+#function that renders the menu
 def print_menu():
-    #build the splash
     print (75 * "-")
     print ("---Aidan Reilly - R00156542---" + 45 * "-")
     print (" ")
@@ -85,11 +86,10 @@ def print_menu():
     print (75 * "-")
     print ("---Autoscaling---" + 58 * "-")
     print (" ")
-    print ("<  20  > - Do summit")
-    print ("<  21  > - Do summit")
-    print ("<  22  > - Do summit")
-    print ("<  23  > - Do summit")
-    print ("<  24  > - Do summit")
+    print ("<  20  > - Create an autoscaling group")
+    print ("<  21  > - Configure autoscaling for an individual instance")
+    print ("<  22  > - Scale a group up based on criteria")
+    print ("<  23  > - Scale a group down based on criteria")
     print (" ")
     print (75 * "-")
     print ("---Exit---" + 65 * "-")
@@ -99,11 +99,12 @@ def print_menu():
 
 loop=True      
 
-while loop:          ## While loop which will keep going until loop = False
+while loop:   ## While loop which will keep going until loop = False
     try:
+        #while loop calls the print menu function above
         print_menu()
-        choice = input("Enter your choice 1-24, or 0 to exit: ")
-        ### Convert string to int type ##
+        choice = input("Enter your choice 1-23, or 0 to exit: ")
+        ### Convert input to int type ##
         choice = int(choice)
 
         if choice==1:     
@@ -112,7 +113,10 @@ while loop:          ## While loop which will keep going until loop = False
             print ("Running AWS EC2 instances:")
             print ("")
             try:
+                #list_instances function just calls to AWS and sees what running instances are up in region for the user. 
+                #the list_instances method takes the ec2 resource as its only parameter.
                 ec2_cont.list_instances( ec2 )
+            #if no instances are found, an informational message is displayed.    
             except:
                 print ("")
                 print ("No running instances...")
@@ -124,9 +128,11 @@ while loop:          ## While loop which will keep going until loop = False
             print ("")
             print ("Running AWS EC2 instances:")
             print ("")
+            #this function also prints the instance id, which can be copy/pasted to query the instance further
             ec2_cont.list_instances_ids( ec2 )
             instance_id = input("Enter the id of the instance you want to query: ")
-            ec2_cont.list_instance( ec2, instance_id )
+            #list_instance takes the ec2 resource and the instance_id as a parameter to return that instance on that resource.
+            ec2_cont.list_instance(ec2, instance_id)
             os.system('pause')
 
         elif choice==3:
@@ -134,7 +140,10 @@ while loop:          ## While loop which will keep going until loop = False
             print ("")
             print ("Stopping all AWS EC2 instances...")
             print ("")
+            #stops all instances
             ec2_cont.stop_instances( ec2 )
+            #use terminate_instances to completly blow away all instances
+            #ec2_cont.terminate_instances( ec2 )
             print ("All AWS EC2 instances stopped.")
             os.system('pause')
 
@@ -143,6 +152,7 @@ while loop:          ## While loop which will keep going until loop = False
             print ("")
             print ("Running AWS EC2 instances:")
             print ("")
+            #reuses the list_instances_ids method, takes the ec2 resource as input 
             ec2_cont.list_instances_ids( ec2 )
             instance_id = input("Enter the id of the instance you want to stop: ")
             ec2_cont.stop_instance( ec2, instance_id )
@@ -156,6 +166,7 @@ while loop:          ## While loop which will keep going until loop = False
             print ("")
             ec2_cont.list_instances_ids_AMIs( ec2 )
             image_id = input("Enter the AMI id of the instance you want to create: ")
+            #User copies the AMI to use as a param in the create_instance 
             ec2_cont.create_instance( ec2, image_id )
             print ("Instance created from image", image_id)
             os.system('pause')
@@ -176,6 +187,7 @@ while loop:          ## While loop which will keep going until loop = False
             print ("Item < 7 > has been selected")
             print ("")
             print ("All current EBS volumes:")
+            #lists all volumes for the current region and user
             ebs_cont.list_volumes(ec2)
             os.system('pause')
 
@@ -184,6 +196,7 @@ while loop:          ## While loop which will keep going until loop = False
             print ("")
             print ("All current stopped EC2 instances:")
             print ("")
+            #EC2 instances must be stopped before a new volume can be attached.
             ec2_cont.list_stopped_instances(ec2)
             print ("")
             print ("All current EBS volumes:")
@@ -194,9 +207,10 @@ while loop:          ## While loop which will keep going until loop = False
             print ("")
             vol_id = input("Enter the volume id of the volume that you want to attach to the EC2 instance: ")
             print ("")
-            #dev input must be xvd[f-z]
+            #device name must be in the form xvd[f-z], validation here to make sure it is in that form would be nice 
             dev = input("Enter the volume device name: ")
             print ("")
+            #takes all the inputs and attaches the volume to the instance.  
             ebs_cont.attach_volume( ec2, inst_id, vol_id, dev) 
             print ("Volume", vol_id, "attached to instance ", inst_id)
             print ("")
@@ -215,6 +229,7 @@ while loop:          ## While loop which will keep going until loop = False
             #dev input must be xvd[f-z]
             dev = input("Enter the volume device name: ")
             print ("")
+            #takes the ec2 resource, all the inputs and detaches the volume from the instance.  
             ebs_cont.detach_volume( ec2, inst_id, vol_id, dev)
             print (vol_id, "detached from", "instance", inst_id)
             os.system('pause')
@@ -234,6 +249,7 @@ while loop:          ## While loop which will keep going until loop = False
             print ("")
             print ("All current EBS volume snapshots:")
             print ("")
+            #exception added in case there are no snapshots
             try:
                 ebs_cont.list_snapshots(ec2)
             except:
@@ -259,10 +275,12 @@ while loop:          ## While loop which will keep going until loop = False
         elif choice==13:
             print ("Item < 13 > has been selected")
             print ("All current S3 buckets: ")
+            print (" ")
             try:
                 contS3.list_buckets(s3) 
             except:
-                print ("No S3 buckets found.") 
+                print ("No S3 buckets found.")
+            print (" ") 
 
             os.system('pause')
 
@@ -295,6 +313,7 @@ while loop:          ## While loop which will keep going until loop = False
             print ("")
             bucky = input("Upload an object; please enter the bucket to upload to: ")
             print ("")
+            #file to be uploaded must be in the project dir, this could be made much more robust of course...
             filename = input("Enter the filename to upload (must be in project dir): ")
             print (" ")
             print ("Uploading...")
@@ -306,6 +325,7 @@ while loop:          ## While loop which will keep going until loop = False
             os.system('pause')
 
         elif choice==16:
+            #reuses a number of other functions 
             print ("Item < 16 > has been selected")
             print ("Download an object from one of the following buckets...")
             print (" ")
@@ -314,6 +334,7 @@ while loop:          ## While loop which will keep going until loop = False
             except:
                 print ("No S3 buckets found.") 
             print (" ")
+            #User copies the bucket form the returned list  
             bucky = input("Enter the bucket name: ")
             print (" ")
             print ("Bucket", bucky, "contains the following objects: ")
@@ -348,7 +369,6 @@ while loop:          ## While loop which will keep going until loop = False
             print (" ")
             #the last key argument names the file the same as the key it was named as going in.  
             contS3.delete_file(s3, bucky, key)
-            ## contS3.delete_file( s3, "bucket2018stynesnew", "S3copyOfS3" )
             print (" ")
             print ("Object deleted!")
             print (" ")
@@ -360,7 +380,7 @@ while loop:          ## While loop which will keep going until loop = False
             print ("All current EC2 instances:")
             ec2_cont.list_instances(ec2)
             print ("")
-            #Display all default performance metrics gathered for a particular EC2 instance (Prompt the user for the EC2 instance in question), averaged over the last 10minutes.
+            #Displays all default performance metrics gathered for a particular EC2 instance (Prompt the user for the EC2 instance in question), averaged over the last 10minutes.
             instance = input("Enter the instance id of the VM you want to investigate: ")
             print (" ")
             print ("Statistics for instance", instance, ": ")
@@ -370,14 +390,12 @@ while loop:          ## While loop which will keep going until loop = False
 
         elif choice==19:
             print ("Item < 19 > has been selected")
+            print ("")
             #Set an alarm such that if the CPU utilization is less than 40% an alarm will be raised. When an alarm is raised, use the AWS SNS to send a notification to an email account. The user should be able to specify the email address as a menu option at the command line.
-            print ("")
-            print ("Set an alarm for CPU utilization < 40%. AWS will send a notification via email.")
-            print ("")
-            email = input("Enter your email address: ")
-            print ("")
+            print ("Set an alarm for CPU utilization < 40%. AWS will you send a notification via email.")
             print ("Running AWS EC2 instances:")
             print ("")
+            #list instances, copy/paste instance id to create the alarm 
             ec2_cont.list_instances( ec2 )
             print ("")
             inst_id = input("Enter the instance id of the VM you want to set an alarm for: ")
@@ -385,33 +403,69 @@ while loop:          ## While loop which will keep going until loop = False
             contCW.set_alarm(cw, inst_id, "CPUUtilization", 40.0, "Percent" )
             print ("Alarm Created!")
             print ("")
+            #this works, just send a mail
+            email_add = input("Enter your email to subscribe to the CPU alarm: ")
+            print ("")
+            contCW.subscribe_sns_topic(cw, email_add)
+            print ("Please confirm the subscription in your inbox to complete the subscription.")
+            print ("")
+            print ("Leave this window open and check you mail...")
+            #wasn't able to test the waiter - the basic idea is below however:
+            #Set up the waiter for the email
+            #s3_confirm_email = contCW.get_waiter('subscription_exists')
+            #Then start waiting, unitl the wait() method and parameters are passed in
+            #s3_confirm_email.wait(Subscription='exists')
+            print ("Subscription complete!")
             os.system('pause')
 
         elif choice==20:
             print ("Item < 20 > has been selected")
-            #Choose from one of the following free tier Amazon services. Describe what it does (in the python script) and provide a detailed exa mple of how you can manipulate it using boto3 (give 4 short examples). You should describe how you tested these features.  
-            #- Autoscaling
-            #- AmazonDB
-            #- Relational DB Service
-            #- Elastic Load Balancing
+            print ("")
+            group_name = input("Enter the name for the autoscaling group: ")
+            print ("")
+            print (group_name, "group created!")
             os.system('pause')
 
         elif choice==21:
             print ("Item < 21 > has been selected")
-            #this works, just send a mail
-            contCW.send_sns_email(cw)
-            os.system('pause')
+            print ("")
+            ec2_cont.list_instances(ec2)
+            print ("")
+            inst = input("Enter the instance id of the instance you would like to add to the autoscaling group:")
+            print ("")
+            grp = input("Enter the autoscaling group that the instance will be added to:")
+            print ("")
+            #function to create the group and add the instance to it 
+            #ec2.add_id_group(ec2, inst, grp)
+            print ("Instance", inst, "has been added to the", grp, "autoscaling group")
 
         elif choice==22:
             print ("Item < 22 > has been selected")
+            print ("")
+            print ("Current autoscaling groups:")
+            #ec2_cont.list_auto_groups(ec2)
+            print ("")
+            criteria = input("Enter the criteria that you want to configure for scaling up")
+            print ("")
+            grp = input("Enter the autoscaling group that you want to configure scaling up for:")
+            print ("") 
+            #scale_up_group takes the EC2 resource, critera and group details as parameters.
+            ec2_cont.scale_up_group(ec2, criteria, grp)
+            print ("Autoscale group updated....")            
             os.system('pause')
 
         elif choice==23:
             print ("Item < 23 > has been selected")
-            os.system('pause')
-
-        elif choice==24:
-            print ("Item < 24 > has been selected")
+            print ("")
+            print ("Current autoscaling groups:")
+            #ec2_cont.list_auto_groups(ec2)
+            print ("")
+            criteria = input("Enter the criteria that you want to configure for scaling down")
+            print ("")
+            grp = input("Enter the autoscaling group that you want to configure scaling down for:")
+            print ("") 
+            ec2_cont.scale_up_group(ec2, criteria, grp)
+            print ("Autoscale group updated....")            
             os.system('pause')
 
         elif choice==0:
@@ -420,10 +474,12 @@ while loop:          ## While loop which will keep going until loop = False
             print ("")
             loop=False
 
+        #this is the end of the applcation loop...
         else:
             # Any integer inputs other than values 1-5 we print an error message
             input("Did you make an incorrect selection? Hit any key to start again...")
 
+    #error handling, this should give back meaningful errors when an error is encountered.
     except Exception as e: 
         print(e)
         os.system('pause')

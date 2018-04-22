@@ -33,9 +33,8 @@ class S3Controller:
         bucket = s3.Bucket(bucket_name)
         #must delete all objects/keys before you can delete bucket
         for key in bucket.objects.all():
-            key.delete()
-            
-        bucket.delete( )
+            key.delete()   
+        bucket.delete()
     
 
     def upload_file(self, s3, bucket_name, file_name, key ):

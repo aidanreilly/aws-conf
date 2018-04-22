@@ -20,6 +20,7 @@ class Volumes:
 
             print( "Volume ID:", volume.volume_id )
             print( "Volume State:", volume.state )
+            #str method here is casting the int volume.size to a string 
             print( "Volume Size:", str(volume.size)+"GB" )
             print( "Volume Zone:", volume.availability_zone )
             print( "Volume Type:", volume.volume_type )
@@ -50,7 +51,6 @@ class Volumes:
             print (e)
 
     def detach_volume(self, ec2, instance_id, volume_id, dev_name):
-
         # Detach the volume with id "volume_id" from the EC2 instance with
         # id "instance_id" where it is device "dev_name",
         # using the given 'ec2' Resource
@@ -75,7 +75,6 @@ class Volumes:
             print( "Snapshot State:", snapshot.state )
 
     def delete_snapshot( self, ec2, snapshot_id ):
-
         # Deletes the snapshot with id 'snapshot_id'
         snapshot = ec2.Snapshot(snapshot_id)
         snapshot.delete()
