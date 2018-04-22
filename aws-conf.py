@@ -19,7 +19,7 @@ print (" ")
 init(strip=not sys.stdout.isatty()) # strip colors if stdout is redirected
 cprint(figlet_format('AWS CONF', font='doom'),
        'red', attrs=['bold'])
-#os.system('pause') is a neat way of getting the user to "unpause" the application
+#os.system('pause') is a neat way of allowing the user to "unpause" the application
 os.system('pause')
 
 #instantiate all the AWS objects
